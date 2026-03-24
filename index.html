@@ -141,26 +141,20 @@ let uid = null;
 window.googleLogin = async function () {
   await signInWithRedirect(auth, provider);
 };
-
-// 🔁 HANDLE REDIRECT RESULT
-getRedirectResult(auth)
-  .then((result) => {
-    if (result) {
-      uid = result.user.uid;
-      startApp();
-    }
-  })
-  .catch((error) => {
-    console.log(error);
-  });
-
-// AUTO LOGIN
-onAuthStateChanged(auth, (user) => {
+// AUTO LOGIN (MAIN FIX)
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     uid = user.uid;
-    startApp();
+
+    // show app UI
+    document.getElementById("auth").classList.add("hidden");
+    document.getElementById("app").classList.remove("hidden");
+
+    await loadData();
+    newMsg();
   }
 });
+
 
 // START APP
 async function startApp() {
