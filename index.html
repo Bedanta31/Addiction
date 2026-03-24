@@ -97,14 +97,12 @@ button.red {
 
 <script type="module">
 
-// 🔥 IMPORTS
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
 import {
   getAuth,
   GoogleAuthProvider,
   signInWithRedirect,
-  getRedirectResult,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
@@ -117,15 +115,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 
-// 🔥 YOUR CONFIG
+// 🔥 CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyCETSq2TD1RnJs0zvbuieTN3twaPBCHXMk",
   authDomain: "addiction-remove.firebaseapp.com",
-  databaseURL: "https://addiction-remove-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "addiction-remove",
-  storageBucket: "addiction-remove.firebasestorage.app",
-  messagingSenderId: "711071133347",
-  appId: "1:711071133347:web:c5fa35f0bf3e602f3b5916"
 };
 
 // INIT
@@ -137,33 +131,31 @@ const provider = new GoogleAuthProvider();
 
 let uid = null;
 
-// 🔐 GOOGLE LOGIN (REDIRECT)
-window.googleLogin = async function () {
+
+// ✅ LOGIN BUTTON (IMPORTANT FIX)
+document.querySelector("button").addEventListener("click", async () => {
   await signInWithRedirect(auth, provider);
-};
-// AUTO LOGIN (MAIN FIX)
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    uid = user.uid;
-
-    // show app UI
-    document.getElementById("auth").classList.add("hidden");
-    document.getElementById("app").classList.remove("hidden");
-
-    await loadData();
-    newMsg();
-  }
 });
 
 
-// START APP
-async function startApp() {
-  document.getElementById("auth").classList.add("hidden");
-  document.getElementById("app").classList.remove("hidden");
+// ✅ MAIN FIX — AUTO LOGIN HANDLER
+onAuthStateChanged(auth, async (user) => {
+  console.log("Auth State:", user);
 
-  loadData();
-  newMsg();
-}
+  if (user) {
+    uid = user.uid;
+
+    // SHOW APP
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    await loadData();
+    newMsg();
+  } else {
+    console.log("No user logged in");
+  }
+});
+
 
 // LOAD DATA
 async function loadData() {
@@ -173,13 +165,11 @@ async function loadData() {
   if (snap.exists()) {
     document.getElementById("streak").innerText = snap.data().streak;
   } else {
-    await setDoc(ref, {
-      streak: 0,
-      createdAt: new Date()
-    });
+    await setDoc(ref, { streak: 0 });
     document.getElementById("streak").innerText = 0;
   }
 }
+
 
 // MARK CLEAN
 window.markClean = async function () {
@@ -192,6 +182,7 @@ window.markClean = async function () {
   document.getElementById("streak").innerText = s;
 };
 
+
 // RELAPSE
 window.relapse = async function () {
   const ref = doc(db, "users", uid);
@@ -199,6 +190,7 @@ window.relapse = async function () {
   await updateDoc(ref, { streak: 0 });
   document.getElementById("streak").innerText = 0;
 };
+
 
 // PANIC
 window.panic = function () {
@@ -209,14 +201,15 @@ window.closePanic = function () {
   document.getElementById("panic").style.display = "none";
 };
 
+
 // MOTIVATION
 window.newMsg = function () {
   const msgs = [
     "Stay strong 💪",
     "Control your mind 🧠",
-    "You are improving 🔥",
-    "Discipline wins",
-    "One urge defeated = power gained"
+    "Discipline wins 🔥",
+    "You are improving",
+    "One day at a time"
   ];
 
   document.getElementById("msg").innerText =
@@ -224,6 +217,5 @@ window.newMsg = function () {
 };
 
 </script>
-
 </body>
 </html>
